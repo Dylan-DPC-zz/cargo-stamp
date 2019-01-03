@@ -1,0 +1,10 @@
+[package]
+name = "stablize"
+version = "0.1.0"
+authors = ["Dylan_DPC <dylan.dpc@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+structopt = "0.2"
+structopt-derive = "*"
+regex = { version = "1", features = ["pattern"] }
