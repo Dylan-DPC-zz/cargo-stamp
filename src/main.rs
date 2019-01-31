@@ -1,11 +1,11 @@
 #![feature(pattern)]
 
-use structopt::StructOpt;
-use std::io::Write;
 use crate::stabilize::Stabilize;
+use std::io::Write;
+use structopt::StructOpt;
 
-pub mod stabilize;
 pub mod file;
+pub mod stabilize;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "stabilize")]
@@ -13,7 +13,7 @@ struct Cli {
     #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
     verbose: u8,
     #[structopt(short = "f", long = "feature", help = "the feature to stabilize")]
-    feature: Option<String>
+    feature: Option<String>,
 }
 
 fn main() {
@@ -21,10 +21,11 @@ fn main() {
 
     let opt = Cli::from_args();
     if let Some(feature) = opt.feature {
-        Stabilize::try_new(&feature).expect("issue with rustc path").start().expect("cannot stabilise");
-
+        Stabilize::try_new(&feature)
+            .expect("issue with rustc path")
+            .start()
+            .expect("cannot stabilise");
     }
-
 }
 
 pub fn prompt_reply_stdout(prompt: &str) -> std::io::Result<String> {
