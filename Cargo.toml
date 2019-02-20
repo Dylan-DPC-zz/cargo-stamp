@@ -1,10 +1,11 @@
 [package]
-name = "stablize"
+name = "cargo-stamp"
 version = "0.1.0"
 authors = ["Dylan_DPC <dylan.dpc@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 structopt = "0.2"
-structopt-derive = "*"
+structopt-derive = "0.2"
 regex = { version = "1", features = ["pattern"] }
+walkdir = "2"

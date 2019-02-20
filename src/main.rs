@@ -17,7 +17,7 @@ struct Cli {
 }
 
 fn main() {
-    std::env::set_current_dir(std::path::Path::new("/home/dpc/Code/rust")).expect("cannot set dir");
+    std::env::set_current_dir(std::path::Path::new("../rust")).expect("cannot set dir");
 
     let opt = Cli::from_args();
     if let Some(feature) = opt.feature {

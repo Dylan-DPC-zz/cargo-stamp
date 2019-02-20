@@ -1,5 +1,6 @@
 use crate::file::{Direction, Handler};
 use std::{env::current_dir, error::Error, path::PathBuf};
+use walkdir::WalkDir;
 
 #[derive(Clone, Debug)]
 pub struct Stabilize {
@@ -17,6 +18,7 @@ impl Stabilize {
 
     pub fn start(self) -> Result<(), Box<dyn Error>> {
         self.remove_feature_gate()?;
+        self.change_conditional_compilation()?;
 
         Ok(())
     }
@@ -52,5 +54,13 @@ impl Stabilize {
         handler.replace_line(position, &accepted)?;
 
         Ok(())
+    }
+
+    fn change_conditional_compilation(&self) -> Result<(), Box<dyn Error>> {
+        for entry in WalkDir::new(self.path.join("src")) {
+
+
+
+        }
     }
 }
