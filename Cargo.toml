@@ -5,7 +5,7 @@ authors = ["Dylan_DPC <dylan.dpc@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-structopt = "0.2"
-structopt-derive = "0.2"
 regex = { version = "1", features = ["pattern"] }
 walkdir = "2"
+
+clap = { git = "https://github.com/clap-rs/clap", features = ["derive"]}

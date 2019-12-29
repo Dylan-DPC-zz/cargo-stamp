@@ -3,7 +3,7 @@ use std::fmt::{Display, Error as FmtError, Formatter};
 use std::{error::Error, path::PathBuf, str::pattern::Pattern};
 use std::{
     fs::{File, OpenOptions},
-    io::{BufReader, Read, Seek, SeekFrom, Write},
+    io::{BufReader, Read, Seek, SeekFrom, Write, Lines},
 };
 
 #[derive(Debug)]
@@ -142,18 +142,11 @@ impl Handler {
             contents.remove(end + 1);
         }
 
-        let source = &contents[start..=end];
+        let position = position(&contents, after)?;
+        let mut source = &mut contents[start..=end];
+        let len = source.len();
 
-        let (position, _cont) = contents
-            .iter()
-            .enumerate()
-            .filter(|(_key, cont)| cont.contains(after))
-            .last()
-            .ok_or(CannotFindInFile {
-                token: after.to_owned(),
-            })?;
-
-        contents.move_elements(start, position, source.len())?;
+        contents.move_elements(start, position, len)?;
 
         let data = &mut contents.join("\n");
         data.push_str("\n");
@@ -187,6 +180,8 @@ impl VecExt for Vec<String> {
         }
     }
 
+
+
     fn find_regex(&self, key: &str) -> Result<(usize, String), Box<dyn Error>> {
         let regex_key = Regex::new(format!(r"^.*?{}.*$", key).as_str())?;
         self.iter()
@@ -202,6 +197,16 @@ impl VecExt for Vec<String> {
     }
 }
 
+pub fn position(contents: &[String], after: &str) -> Result<usize, Box<dyn Error>> {
+    Ok(contents
+        .iter()
+        .enumerate()
+        .filter(|(_key, cont)| cont.contains(after))
+        .last()
+        .ok_or(CannotFindInFile {
+            token: after.to_owned(),
+        })?.0)
+}
 #[derive(Debug)]
 pub struct CannotFindInFile {
     pub token: String,

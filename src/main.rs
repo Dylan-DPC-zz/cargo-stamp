@@ -1,25 +1,27 @@
+
+
 #![feature(pattern)]
 
 use crate::stabilize::Stabilize;
 use std::io::Write;
-use structopt::StructOpt;
+use clap::Clap;
 
 pub mod file;
 pub mod stabilize;
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "stabilize")]
+#[derive(Clap, Debug)]
+#[clap(name = "stabilize")]
 struct Cli {
-    #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
+    #[clap(short = "v", long = "verbose", parse(from_occurrences))]
     verbose: u8,
-    #[structopt(short = "f", long = "feature", help = "the feature to stabilize")]
+    #[clap(short = "f", long = "feature", help = "the feature to stabilize")]
     feature: Option<String>,
 }
 
 fn main() {
     std::env::set_current_dir(std::path::Path::new("../rust")).expect("cannot set dir");
 
-    let opt = Cli::from_args();
+    let opt = Cli::parse();
     if let Some(feature) = opt.feature {
         Stabilize::try_new(&feature)
             .expect("issue with rustc path")

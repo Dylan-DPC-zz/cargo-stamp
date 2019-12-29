@@ -58,9 +58,11 @@ impl Stabilize {
 
     fn change_conditional_compilation(&self) -> Result<(), Box<dyn Error>> {
         for entry in WalkDir::new(self.path.join("src")) {
-
+            dbg!(&entry);
 
 
         }
+
+        Ok(())
     }
 }
