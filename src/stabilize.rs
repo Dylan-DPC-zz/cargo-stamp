@@ -24,7 +24,7 @@ impl Stabilize {
     }
 
     fn remove_feature_flag_from_tests(&self) -> Result<(), Box<dyn Error>> {
-        Dir::new(self.path.join("src/test/ui/"))
+        Dir::new(self.path.join("src/test/"))
             .scan_for(format!("#![feature({})]", self.feature).as_str())?;
 
         Ok(())
