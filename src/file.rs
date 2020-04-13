@@ -3,7 +3,7 @@ use std::fmt::{Display, Error as FmtError, Formatter};
 use std::{error::Error, path::PathBuf, str::pattern::Pattern};
 use std::{
     fs::{File, OpenOptions},
-    io::{BufReader, Read, Seek, SeekFrom, Write, Lines},
+    io::{BufReader, Read, Seek, SeekFrom, Write},
 };
 
 #[derive(Debug)]
@@ -16,7 +16,7 @@ pub struct Handler {
 impl Handler {
     pub fn try_new<T: Into<PathBuf>>(path: T) -> Result<Handler, Box<dyn Error>> {
         let path = path.into();
-        let mut file = OpenOptions::new()
+        let file = OpenOptions::new()
             .read(true)
             .write(true)
             .open(path.clone())?;
@@ -60,7 +60,7 @@ impl Handler {
 
     fn replace<F: Fn((usize, &str)) -> String>(
         &mut self,
-        at: usize,
+        _at: usize,
         map: F,
     ) -> Result<(), Box<dyn Error>> {
         let contents = self
@@ -143,7 +143,7 @@ impl Handler {
         }
 
         let position = position(&contents, after)?;
-        let mut source = &mut contents[start..=end];
+        let source = &mut contents[start..=end];
         let len = source.len();
 
         contents.move_elements(start, position, len)?;
@@ -158,6 +158,32 @@ impl Handler {
     pub fn nth(&self, n: usize) -> Option<&str> {
         self.contents.lines().nth(n)
     }
+
+    pub fn delete(&mut self, key: &str) -> Result<(), Box<dyn Error>> {
+
+        let mut dirty = false;
+        let contents = self.contents
+            .lines()
+            .map(|x| {
+                if x.contains(key) {
+                    dirty = true;
+                    "<!! tbd !!>"
+                } else {
+                    x
+                }
+            })
+            .filter(|x| *x != "<!! tbd !!>")
+            .collect::<Vec<_>>();
+
+
+        if dirty {
+            let mut data = contents.join("\n");
+            data += "\n";
+            self.write(&data)
+        } else {
+            Ok(())
+        }
+    }
 }
 trait VecExt {
     fn move_elements(&mut self, src: usize, dst: usize, n: usize) -> Result<(), Box<dyn Error>>;
@@ -169,8 +195,7 @@ impl VecExt for Vec<String> {
     fn move_elements(&mut self, src: usize, dst: usize, n: usize) -> Result<(), Box<dyn Error>> {
         if n > self.len() {
             Err(OutOfBounds {}.into())
-        } else {
-            if dst < src {
+        } else { if dst < src {
                 self[dst..=src].rotate_right(n);
             } else {
                 self[src..=dst].rotate_left(n);
@@ -272,7 +297,7 @@ mod tests {
             .unwrap()
             .read()
             .expect("cannot read file");
-        file.search_and_replace("bar", "an entire new line");
+        file.search_and_replace("bar", "an entire new line").unwrap();
         let output: String = read_to_string("dummy_contains")
             .expect("cannot read file")
             .parse()
@@ -332,7 +357,7 @@ mod tests {
             .unwrap()
             .read()
             .expect("cannot read file");
-        file.replace_at(2, "baz", "changed");
+        file.replace_at(2, "baz", "changed").unwrap();
         let output: String = read_to_string("dummy_replace_at")
             .expect("cannot read file")
             .parse()

@@ -1,6 +1,7 @@
-use crate::file::{Direction, Handler};
+
 use std::{env::current_dir, error::Error, path::PathBuf};
-use walkdir::WalkDir;
+
+use crate::dir::Dir;
 
 #[derive(Clone, Debug)]
 pub struct Stabilize {
@@ -17,51 +18,14 @@ impl Stabilize {
     }
 
     pub fn start(self) -> Result<(), Box<dyn Error>> {
-        self.remove_feature_gate()?;
-        self.change_conditional_compilation()?;
+        self.remove_feature_flag_from_tests()?;
 
         Ok(())
     }
 
-    fn remove_feature_gate(&self) -> Result<(), Box<dyn Error>> {
-        let search = format!("\\(active, {}", &self.feature);
-
-        let mut handler =
-            Handler::try_new(self.path.join("src/libsyntax/feature_gate.rs"))?.read()?;
-        let position =
-            handler.move_n_lines_to("accepted,", search.as_str(), 1, Direction::Above)?;
-        let mut accepted_line = handler
-            .nth(position)
-            .unwrap()
-            .split(',')
-            .map(|x| x.to_owned())
-            .collect::<Vec<String>>();
-        let last_accepted = handler
-            .nth(position - 2)
-            .unwrap()
-            .split(',')
-            .map(|x| x.to_owned())
-            .collect::<Vec<String>>();
-        let last_version = last_accepted
-            .iter()
-            .find(|token| token.starts_with(" \"1."))
-            .unwrap();
-        accepted_line[0] = "\t(accepted".to_owned();
-        accepted_line[2] = last_version.to_owned();
-
-        let accepted = accepted_line.join(",").to_owned();
-
-        handler.replace_line(position, &accepted)?;
-
-        Ok(())
-    }
-
-    fn change_conditional_compilation(&self) -> Result<(), Box<dyn Error>> {
-        for entry in WalkDir::new(self.path.join("src")) {
-            dbg!(&entry);
-
-
-        }
+    fn remove_feature_flag_from_tests(&self) -> Result<(), Box<dyn Error>> {
+        Dir::new(self.path.join("src/test/ui/"))
+            .scan_for(format!("#![feature({})]", self.feature).as_str())?;
 
         Ok(())
     }

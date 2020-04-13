@@ -8,6 +8,7 @@ use clap::Clap;
 
 pub mod file;
 pub mod stabilize;
+pub mod dir;
 
 #[derive(Clap, Debug)]
 #[clap(name = "stabilize")]
